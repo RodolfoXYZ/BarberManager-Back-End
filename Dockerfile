@@ -1,10 +1,12 @@
-FROM eclipse-temurin:23-jdk-noble AS build
+FROM openjdk:23-jdk AS build
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+COPY pom.xml . 
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+RUN mvn dependency:resolve
 
+COPY src ./src
 RUN mvn clean package -DskipTests
 
 FROM openjdk:23-jdk
