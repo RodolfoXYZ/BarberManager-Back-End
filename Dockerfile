@@ -1,4 +1,4 @@
-FROM 3.9.9-eclipse-temurin-23 AS build
+FROM eclipse-temurin:23-jdk-noble AS build
 
 WORKDIR /app
 
