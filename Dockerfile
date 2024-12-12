@@ -1,15 +1,13 @@
-FROM openjdk:23-jdk AS build
+FROM jelastic/maven:3.9.4-openjdk-22.ea-b17 AS build
 
 WORKDIR /app
 
-COPY pom.xml . 
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
-RUN mvn dependency:resolve
-
+COPY pom.xml .
 COPY src ./src
+
 RUN mvn clean package -DskipTests
 
-FROM openjdk:23-jdk
+FROM openjdk:22-jdk
 
 WORKDIR /app
 
