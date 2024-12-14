@@ -27,11 +27,11 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNome(usuarioDTO.nome());
         usuario.setEmail(usuarioDTO.email());
-        usuario.setSenha(passwordEncoder.encode(usuarioDTO.senha()));
+        usuario.setSenha(passwordEncoder.encode(usuarioDTO.senha())); // A senha será criptografada
         usuario.setEndereco(usuarioDTO.endereco());
         usuario.setTipo(usuarioDTO.tipo());
 
-        return usuarioRepository.save(usuario);
+        return usuarioRepository.save(usuario); // Salva o usuário no banco com a senha criptografada
     }
 
     public Usuario autenticarUsuario(LoginRequestDTO loginRequestDTO) {
@@ -42,7 +42,7 @@ public class UsuarioService {
 
         Usuario usuario = usuarioOptional.get();
 
-        if (!passwordEncoder.matches(loginRequestDTO.senha(), usuario.getSenha())) {
+        if (!passwordEncoder.matches(loginRequestDTO.senha(), usuario.getSenha())) { // Verifica a senha criptografada
             throw new RuntimeException("Senha incorreta.");
         }
 
