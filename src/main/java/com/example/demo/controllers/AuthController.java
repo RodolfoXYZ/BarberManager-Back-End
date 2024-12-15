@@ -1,13 +1,20 @@
 package com.example.demo.controllers;
 
-import com.example.demo.DTOs.LoginRequestDTO;
-import com.example.demo.DTOs.UsuarioDTO;
-import com.example.demo.models.Usuario;
-import com.example.demo.services.UsuarioService;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.DTOs.LoginRequestDTO;
+import com.example.demo.DTOs.UsuarioDTO;
+import com.example.demo.models.Usuario;
+import com.example.demo.services.TokenService;
+import com.example.demo.services.UsuarioService;
 
 @RestController
 @RequestMapping("/auth")
@@ -16,22 +23,21 @@ public class AuthController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
-            Usuario usuarioAutenticado = usuarioService.autenticarUsuario(loginRequestDTO);
-            
-            UsuarioDTO usuarioDTO = new UsuarioDTO(
-                    usuarioAutenticado.getId(), 
-                    usuarioAutenticado.getNome(), 
-                    usuarioAutenticado.getEmail(),
-                    null,
-                    usuarioAutenticado.getEndereco(), 
-                    usuarioAutenticado.getTipo()
-            );
-            return new ResponseEntity<>(usuarioDTO, HttpStatus.OK);
+            Usuario usuario = usuarioService.autenticarUsuario(loginRequestDTO);
+            String token = tokenService.gerarToken(usuario.getEmail());
+            return ResponseEntity.ok(Map.of(
+                "token", token,
+                "usuario", new UsuarioDTO(
+                    usuario.getId(), usuario.getNome(), usuario.getEmail(), null, usuario.getEndereco(), usuario.getTipo())
+            ));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
         }
     }
 }
