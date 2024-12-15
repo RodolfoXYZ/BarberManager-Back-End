@@ -34,10 +34,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 String email = tokenService.validarToken(token);
-                Usuario usuario = usuarioService.buscarPorEmail(email);  // Buscando o usuário pelo email
-                // Criação do UsernamePasswordAuthenticationToken sem authorities, pois você tem um único tipo de usuário
+                Usuario usuario = usuarioService.buscarPorEmail(email);
+
+                if (usuario == null) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
+
+                System.out.println("Usuário encontrado: " + usuario);
+
                 UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(usuario, null, null);
+                    new UsernamePasswordAuthenticationToken(email, null, null);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
