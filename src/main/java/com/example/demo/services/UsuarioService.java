@@ -30,7 +30,6 @@ public class UsuarioService {
         usuario.setEmail(usuarioDTO.email());
         usuario.setEndereco(usuarioDTO.endereco());
         usuario.setTipo(usuarioDTO.tipo());
-
         usuario.setSenha(passwordEncoder.encode(usuarioDTO.senha()));
 
         return usuarioRepository.save(usuario);
