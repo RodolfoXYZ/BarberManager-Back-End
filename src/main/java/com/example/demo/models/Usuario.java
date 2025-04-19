@@ -25,5 +25,13 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private TipoServico tipoServico;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TipoUsuario tipo;
+
+    @ManyToOne
+    @JoinColumn(name = "barbearia_id")
+    private Barbearia barbearia;
 }

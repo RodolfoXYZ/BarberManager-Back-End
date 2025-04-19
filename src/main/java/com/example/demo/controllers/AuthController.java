@@ -34,7 +34,7 @@ public class AuthController {
             return ResponseEntity.ok(Map.of(
                 "token", token,
                 "usuario", new UsuarioDTO(
-                    usuario.getId(), usuario.getNome(), usuario.getEmail(), null, usuario.getEndereco(), usuario.getTipo())
+                    usuario.getId(), usuario.getNome(), usuario.getEmail(), null, usuario.getEndereco(), usuario.getTipo(), usuario.getTipoServico())
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
