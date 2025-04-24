@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Entity
 public class Usuario {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,6 +23,15 @@ public class Usuario {
     @Column(nullable = false)
     private String endereco;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String tipo;
+    private TipoServico tipoServico;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoUsuario tipo;
+
+    @ManyToOne
+    @JoinColumn(name = "barbearia_id")
+    private Barbearia barbearia;
 }

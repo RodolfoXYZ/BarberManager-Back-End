@@ -23,7 +23,8 @@ public class UsuarioController {
                     usuarioDTO.email(),
                     null,
                     usuarioDTO.endereco(),
-                    usuarioDTO.tipo()
+                    usuarioDTO.tipo(),
+                    usuarioDTO.tipoServico()
             );
 
             return new ResponseEntity<>(usuarioCadastrado, HttpStatus.CREATED);
