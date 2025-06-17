@@ -1,13 +1,11 @@
 package com.example.demo.services;
 
 import com.example.demo.DTOs.ServicoDTO;
+import com.example.demo.models.Categoria;
 import com.example.demo.models.Servico;
 import com.example.demo.models.Usuario;
 import com.example.demo.repositories.ServicoRepository;
-import com.example.demo.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,25 +18,20 @@ public class ServicoService {
     private ServicoRepository servicoRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;;
 
-    private String getUsuarioAutenticado() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            return authentication.getName();
-        }
-        throw new RuntimeException("Erro: Usuário não autenticado");
-    }
+    @Autowired
+    private CategoriaService categoriaService;
 
     public ServicoDTO cadastrarServico(ServicoDTO dto) {
-        Usuario usuario = getUsuarioLogado();
+
+        Categoria categoria = categoriaService.buscarCategoriaPorNome(dto.categoria());
 
         Servico servico = new Servico();
-        servico.setUrl(dto.url());
         servico.setTitle(dto.title());
         servico.setDescricao(dto.descricao());
         servico.setPrice(dto.price());
-        servico.setUsuario(usuario);
+        servico.setCategoria(categoria);
 
         servico = servicoRepository.save(servico);
 
@@ -46,19 +39,20 @@ public class ServicoService {
     }
 
     public ServicoDTO atualizarServico(Long id, ServicoDTO dto) {
-        Usuario usuario = getUsuarioLogado();
+        Usuario usuario = usuarioService.getUsuarioLogado();
+        Categoria categoria = categoriaService.buscarCategoriaPorNome(dto.categoria());
 
         Servico servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
-        if (!servico.getUsuario().getId().equals(usuario.getId())) {
+        if (!servico.getCategoria().getUsuario().getId().equals(usuario.getId())) {
             throw new RuntimeException("Você não tem permissão para atualizar este serviço");
         }
 
-        servico.setUrl(dto.url());
         servico.setTitle(dto.title());
         servico.setDescricao(dto.descricao());
         servico.setPrice(dto.price());
+        servico.setCategoria(categoria);
 
         servico = servicoRepository.save(servico);
 
@@ -66,12 +60,12 @@ public class ServicoService {
     }
 
     public void deletarServico(Long id) {
-        Usuario usuario = getUsuarioLogado();
+        Usuario usuario = usuarioService.getUsuarioLogado();
 
         Servico servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
-        if (!servico.getUsuario().getId().equals(usuario.getId())) {
+        if (!servico.getCategoria().getUsuario().getId().equals(usuario.getId())) {
             throw new RuntimeException("Você não tem permissão para deletar este serviço");
         }
 
@@ -79,21 +73,15 @@ public class ServicoService {
     }
 
     public List<ServicoDTO> listarServicosUsuario() {
-        Usuario usuario = getUsuarioLogado();
+        Usuario usuario = usuarioService.getUsuarioLogado();
 
-        return servicoRepository.findByUsuarioId(usuario.getId())
+        return servicoRepository.findByCategoriaUsuarioId(usuario.getId())
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    private Usuario getUsuarioLogado() {
-        String email = getUsuarioAutenticado();
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário autenticado não encontrado"));
-    }
-
     private ServicoDTO toDTO(Servico s) {
-        return new ServicoDTO(s.getId(), s.getUrl(), s.getTitle(), s.getDescricao(), s.getPrice());
+        return new ServicoDTO(s.getTitle(), s.getDescricao(), s.getPrice(), s.getCategoria().getNome());
     }
 }

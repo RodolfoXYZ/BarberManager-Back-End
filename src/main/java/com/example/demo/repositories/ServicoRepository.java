@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ServicoRepository extends JpaRepository<Servico, Long> {
-    List<Servico> findByUsuarioId(Long usuarioId);
+    List<Servico> findByCategoriaUsuarioId(Long usuarioId);
+    Servico findFirstByTitleContainingIgnoreCaseAndCategoriaUsuarioId(String title, Long usuarioId);
 }

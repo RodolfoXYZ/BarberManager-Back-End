@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.DTOs.DadosGeraisUsuarioDTO;
 import com.example.demo.DTOs.LoginRequestDTO;
-import com.example.demo.DTOs.UsuarioDTO;
 import com.example.demo.models.Usuario;
 import com.example.demo.services.TokenService;
 import com.example.demo.services.UsuarioService;
@@ -33,8 +33,8 @@ public class AuthController {
             String token = tokenService.gerarToken(usuario.getEmail());
             return ResponseEntity.ok(Map.of(
                 "token", token,
-                "usuario", new UsuarioDTO(
-                    usuario.getId(), usuario.getNome(), usuario.getEmail(), null, usuario.getEndereco(), usuario.getTipo(), usuario.getTipoServico())
+                "usuario", new DadosGeraisUsuarioDTO(
+                    usuario.getNome(), usuario.getEmail(), null, usuario.getEndereco(), usuario.getTipo(), usuario.getBarbearias(), usuario.getBarbearia(), usuario.getCategoria())
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));

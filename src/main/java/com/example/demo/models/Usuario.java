@@ -1,10 +1,16 @@
 package com.example.demo.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "usuarios")
 public class Usuario {
 
     @Id
@@ -25,13 +31,26 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoServico tipoServico;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TipoUsuario tipo;
 
+    @OneToMany(mappedBy = "proprietario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Barbearia> barbearias = new ArrayList<>();
+
     @ManyToOne
-    @JoinColumn(name = "barbearia_id")
     private Barbearia barbearia;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("usuario")
+    private List<Categoria> categoria = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        String nomesCategorias = (categoria != null) ? categoria.stream()
+            .map(Categoria::getNome)
+            .reduce((a, b) -> a + ", " + b)
+            .orElse("") : "";
+        return "Usuario [id=" + id + ", nome=" + nome + ", email=" + email + ", senha=" + senha + ", endereco="
+                + endereco + ", tipo=" + tipo + ", barbearias=" + barbearias + ", barbearia=" + barbearia
+                + ", categorias=[" + nomesCategorias + "]" + "]";
+    };
 }

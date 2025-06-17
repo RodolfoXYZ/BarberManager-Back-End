@@ -5,8 +5,11 @@ import lombok.Data;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Data
 @Entity
+@Table(name = "barbearias")
 public class Barbearia {
     
     @Id
@@ -22,12 +25,17 @@ public class Barbearia {
     @Column(nullable = false, unique = true)
     private String cnpj;
 
-    @OneToMany(mappedBy = "barbearia", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private String url;
+
+    @ManyToOne
+    @JoinColumn(name = "proprietario_id", nullable = false)
+    @JsonIgnoreProperties({"barbearias", "proprietario"})
+    private Usuario proprietario;
+
+    @OneToMany(mappedBy = "barbearia", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("barbearia")
     private List<Usuario> equipeBarbeiros;
 
     @Column(nullable = false)
     private String horarioFuncionamento;
-
-    @Column(nullable = false)
-    private Double faturamento;
 }

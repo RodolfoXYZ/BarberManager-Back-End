@@ -1,13 +1,17 @@
 package com.example.demo.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.DTOs.LoginRequestDTO;
 import com.example.demo.DTOs.UsuarioDTO;
+import com.example.demo.models.TipoUsuario;
 import com.example.demo.models.Usuario;
 import com.example.demo.repositories.UsuarioRepository;
 
@@ -49,5 +53,27 @@ public class UsuarioService {
     public Usuario buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
+        public String getUsuarioAutenticado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            return authentication.getName();
+        }
+        throw new RuntimeException("Erro: Usuário não autenticado");
+    }
+
+        public Usuario getUsuarioLogado() {
+        String email = getUsuarioAutenticado();
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário autenticado não encontrado"));
+    }
+
+        public Usuario buscarBarbeiroPorNome(String nome) {
+        return usuarioRepository.findByNomeContainingIgnoreCase(nome);
+    }
+
+    public List<Usuario> listarBarbeiros() {
+        return usuarioRepository.findByTipo(TipoUsuario.BARBEIRO);
     }
 }

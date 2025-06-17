@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class DisponibilidadeService {
@@ -21,19 +20,18 @@ public class DisponibilidadeService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public Disponibilidade cadastrarDisponibilidade(DisponibilidadeDTO disponibilidadeDTO) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findById(disponibilidadeDTO.usuarioId());
-        if (usuarioOpt.isEmpty()) {
-            throw new RuntimeException("Usuário (Barbeiro) não encontrado");
-        }
+    @Autowired
+    private UsuarioService usuarioService;
 
-        Usuario usuario = usuarioOpt.get();
+    public Disponibilidade cadastrarDisponibilidade(DisponibilidadeDTO disponibilidadeDTO) {
+        Usuario usuario = usuarioService.getUsuarioLogado();
+
         if (usuario.getTipo() != TipoUsuario.BARBEIRO) {
             throw new RuntimeException("O usuário não é um barbeiro.");
         }
 
         Disponibilidade disponibilidade = new Disponibilidade();
-        disponibilidade.setUsuario(usuario); // Relaciona a disponibilidade com o usuário
+        disponibilidade.setUsuario(usuario);
         disponibilidade.setHoraInicio(disponibilidadeDTO.horaInicio());
         disponibilidade.setHoraFim(disponibilidadeDTO.horaFim());
 
@@ -41,7 +39,7 @@ public class DisponibilidadeService {
     }
 
     public List<Disponibilidade> buscarDisponibilidadesPorBarbeiro(Long usuarioId) {
-        // Buscando as disponibilidades de um barbeiro específico
+
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
